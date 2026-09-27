@@ -562,3 +562,358 @@ The ramp-up controls **how quickly those 10 users are started**.
 
 **One important distinction to remember:**
 **Thread Group → controls users; Sampler → sends requests; Listener → shows results.**
+
+Yes. Since this is **your own website**, a small controlled JMeter test is a good way to learn load testing without generating unnecessary traffic.
+
+For your notes, you can use this example:
+
+# Example: Load Testing My Website with JMeter
+
+**Target website:** `https://www.shuvradipchakraborty.me/`
+
+> Start with a very small load such as **5–10 virtual users**. Do not immediately test with hundreds or thousands of users, especially on a personal/low-cost hosting environment.
+
+## 1. Create a Test Plan
+
+Open JMeter:
+
+```text
+Test Plan
+```
+
+Rename it:
+
+```text
+Shuvradipchakraborty Website - Load Test
+```
+
+---
+
+## 2. Add Thread Group
+
+Right-click:
+
+```text
+Test Plan
+   ↓
+Add
+   ↓
+Threads (Users)
+   ↓
+Thread Group
+```
+
+Configure a conservative test:
+
+```text
+Number of Threads (Users): 5
+Ramp-Up Period:             10 seconds
+Loop Count:                 2
+```
+
+### What does this mean?
+
+**5 Threads**
+
+→ JMeter simulates 5 virtual users.
+
+**10-second Ramp-Up**
+
+→ JMeter gradually starts those 5 users over approximately 10 seconds.
+
+**Loop Count = 2**
+
+→ Each virtual user visits the configured page twice.
+
+Therefore, the basic request count is approximately:
+
+```text
+5 users × 2 loops = 10 requests
+```
+
+---
+
+# 3. Add HTTP Request
+
+Right-click:
+
+```text
+Thread Group
+   ↓
+Add
+   ↓
+Sampler
+   ↓
+HTTP Request
+```
+
+Configure:
+
+### Name
+
+```text
+Open Personal Website
+```
+
+### Protocol
+
+```text
+https
+```
+
+### Server Name or IP
+
+```text
+www.shuvradipchakraborty.me
+```
+
+### Port
+
+Leave it blank because HTTPS normally uses the default HTTPS port.
+
+### Method
+
+```text
+GET
+```
+
+### Path
+
+```text
+/
+```
+
+So the request becomes:
+
+```text
+GET https://www.shuvradipchakraborty.me/
+```
+
+---
+
+# 4. Add a Listener
+
+For learning/debugging:
+
+```text
+Right-click Thread Group
+   ↓
+Add
+   ↓
+Listener
+   ↓
+View Results Tree
+```
+
+This allows you to inspect individual requests.
+
+You can see things such as:
+
+```text
+Request
+Response Code
+Response Headers
+Response Body
+Response Time
+```
+
+---
+
+# 5. Save the Test Plan
+
+Before executing:
+
+```text
+File
+   ↓
+Save Test Plan As
+```
+
+For example:
+
+```text
+Shuvradipchakraborty_Website_Load_Test.jmx
+```
+
+The `.jmx` file is your JMeter test plan.
+
+---
+
+# 6. Run the Test
+
+Click the **Start ▶** button.
+
+Your basic test is:
+
+```text
+                    Test Plan
+                        |
+                        ↓
+                  Thread Group
+                        |
+             5 Virtual Users
+                        |
+                10 sec Ramp-Up
+                        |
+                  2 Loops/User
+                        |
+                        ↓
+                HTTP Request
+                        |
+                        ↓
+       GET / on your website
+                        |
+                        ↓
+              View Results Tree
+```
+
+---
+
+# 7. What should you check?
+
+After the test, look at the response.
+
+For example:
+
+```text
+HTTP Request
+     |
+     ├── Response Code: 200
+     ├── Response Time: XXX ms
+     └── Success: True
+```
+
+A successful `GET` request commonly returns:
+
+```text
+200 OK
+```
+
+But **don't use HTTP 200 alone as your performance conclusion**. You should also examine response time, throughput, errors, and behavior as load increases.
+
+---
+
+# 8. Then Increase the Load Gradually
+
+Once the 5-user test works correctly, you can perform controlled steps.
+
+### Test 1 — Baseline
+
+```text
+Users:       1
+Ramp-Up:     1 sec
+Loop Count:  1
+```
+
+### Test 2 — Small Load
+
+```text
+Users:       5
+Ramp-Up:     10 sec
+Loop Count:  2
+```
+
+### Test 3 — Moderate Load
+
+```text
+Users:       10
+Ramp-Up:     20 sec
+Loop Count:  2
+```
+
+### Test 4 — Higher Load
+
+Only if your hosting/resources can safely handle it:
+
+```text
+Users:       20
+Ramp-Up:     40 sec
+Loop Count:  2
+```
+
+The important concept is:
+
+```text
+1 user
+   ↓
+5 users
+   ↓
+10 users
+   ↓
+20 users
+   ↓
+Observe performance
+```
+
+Rather than immediately doing:
+
+```text
+1000 users → website
+```
+
+---
+
+# 9. What metrics should I record?
+
+For your notes, record:
+
+| Metric                    | Meaning                                  |
+| ------------------------- | ---------------------------------------- |
+| **Response Time**         | How long the server takes to respond     |
+| **Throughput**            | Requests handled over time               |
+| **Error %**               | Percentage of failed requests            |
+| **HTTP Response Code**    | For example, 200, 404, 500               |
+| **Average Response Time** | Average request processing time          |
+| **Min/Max Response Time** | Fastest and slowest responses            |
+| **Latency**               | Time before the response begins arriving |
+
+For a performance test, don't focus only on the **View Results Tree**. For larger tests, use summary/aggregate results and preferably run JMeter in **non-GUI mode**.
+
+---
+
+## 10. A Good Beginner Test Configuration
+
+For your website, I'd write the first exercise in your notes like this:
+
+```text
+Test Name:
+Shuvradipchakraborty.me Basic Load Test
+
+Target:
+https://www.shuvradipchakraborty.me/
+
+Thread Group:
+    Threads: 5
+    Ramp-Up: 10 seconds
+    Loop Count: 2
+
+Sampler:
+    HTTP Request
+    Method: GET
+    Protocol: HTTPS
+    Server: www.shuvradipchakraborty.me
+    Path: /
+
+Listener:
+    View Results Tree
+```
+
+### Expected flow
+
+```text
+5 Virtual Users
+       ↓
+Gradually started over 10 seconds
+       ↓
+Each user sends GET /
+       ↓
+Each user repeats 2 times
+       ↓
+Approximately 10 HTTP requests
+       ↓
+JMeter collects the results
+```
+
+**One caution:** I couldn't directly fetch your site from my browsing environment because the request was redirected to an anti-bot/Google interstitial, so I haven't assumed anything about your site's hosting, backend, or capacity. 
+
+For a real test, start with the small configuration above and watch your hosting/server monitoring while it runs.
